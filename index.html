@@ -7,6 +7,7 @@
   <title>Focus Reward Trainer</title>
   <style>
     * { box-sizing: border-box; }
+
     :root {
       --bg: #101827;
       --panel: rgba(255,255,255,.1);
@@ -17,9 +18,9 @@
       --cyan: #67e8f9;
       --green: #86efac;
       --yellow: #fef08a;
-      --orange: #fed7aa;
       --slate: #0f172a;
     }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -28,109 +29,684 @@
       color: var(--text);
       overflow-x: hidden;
     }
-    .background { position: fixed; inset: 0; pointer-events: none; opacity: .6; overflow: hidden; }
-    .glow { position: absolute; border-radius: 999px; filter: blur(70px); }
-    .glow-one { width: 300px; height: 300px; left: -90px; top: -90px; background: #22d3ee; }
-    .glow-two { width: 420px; height: 420px; right: -100px; bottom: -160px; background: #8b5cf6; }
-    .glow-three { width: 220px; height: 220px; left: 40%; top: 14%; background: #34d399; }
-    .app { position: relative; width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
-    header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 22px; }
-    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel); color: rgba(255,255,255,.82); font-size: 14px; backdrop-filter: blur(14px); }
-    h1 { max-width: 780px; margin: 14px 0 0; font-size: clamp(40px, 7vw, 64px); line-height: .98; letter-spacing: -.05em; }
-    .intro { max-width: 720px; margin: 18px 0 0; color: var(--muted); font-size: 18px; line-height: 1.55; }
-    button { border: 0; font: inherit; cursor: pointer; }
-    .secondary-button, .primary-button, .reward-button, .dark-button, .small-button {
-      border-radius: 18px; padding: 15px 20px; font-weight: 750; transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+
+    .background {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .6;
+      overflow: hidden;
     }
-    .secondary-button:hover, .primary-button:hover, .reward-button:hover, .dark-button:hover, .small-button:hover, .focus-option:hover, .goal-button:hover { transform: translateY(-1px); }
-    .secondary-button { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.08); }
-    .primary-button { background: var(--cyan); color: var(--slate); }
-    .reward-button { background: var(--green); color: var(--slate); }
-    .dark-button { width: 100%; background: var(--slate); color: white; }
-    .small-button { padding: 10px 13px; background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.08); font-size: 13px; }
-    .focus-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 22px 0; }
-    .focus-option { min-height: 148px; padding: 22px; text-align: left; border-radius: 26px; border: 1px solid var(--border); background: var(--panel); color: white; backdrop-filter: blur(16px); box-shadow: 0 20px 60px rgba(0,0,0,.18); transition: transform 160ms ease, background 160ms ease, color 160ms ease; }
-    .focus-option.selected { background: white; color: var(--slate); border-color: rgba(255,255,255,.8); }
-    .focus-option-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; opacity: .78; font-size: 14px; font-weight: 750; }
-    .focus-option h2 { margin: 12px 0 0; font-size: 22px; letter-spacing: -.02em; }
-    .focus-option p { margin: 10px 0 0; color: rgba(255,255,255,.62); line-height: 1.45; font-size: 15px; }
-    .focus-option.selected p { color: #475569; }
-    .main-grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 22px; }
-    .card { border-radius: 34px; border: 1px solid var(--border); background: var(--panel); backdrop-filter: blur(18px); box-shadow: 0 25px 80px rgba(0,0,0,.25); }
-    .timer-card { padding: 30px; }
-    .timer-header, .progress-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    .current-block { display: flex; align-items: center; gap: 14px; }
-    .icon-box { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 18px; background: rgba(255,255,255,.1); font-size: 24px; flex: 0 0 auto; }
-    .label { margin: 0; color: rgba(255,255,255,.58); font-size: 14px; }
-    .value { margin: 3px 0 0; font-weight: 750; }
-    .percent { padding: 10px 14px; border-radius: 16px; background: rgba(0,0,0,.22); color: rgba(255,255,255,.76); font-size: 14px; white-space: nowrap; }
-    .timer-panel { position: relative; min-height: 315px; margin-top: 24px; padding: 44px 24px 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 32px; border: 1px solid rgba(255,255,255,.1); background: var(--panel-strong); overflow: hidden; }
-    .timer-panel.pulse { animation: pulse 700ms ease; }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 45% { transform: scale(1.025); } }
-    .progress-track { position: absolute; left: 24px; right: 24px; top: 24px; height: 12px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow)); transition: width 300ms ease; }
-    .time { font-size: clamp(76px, 12vw, 126px); font-weight: 850; line-height: 1; letter-spacing: -.06em; margin-top: 18px; }
-    .timer-help { max-width: 500px; margin: 18px 0 0; color: rgba(255,255,255,.66); line-height: 1.5; }
-    .actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
-    .side { display: grid; gap: 22px; }
-    .progress-card, .rule-card, .goal-card, .achievement-card, .garden-card { padding: 24px; }
-    .progress-title { font-size: 32px; margin: 4px 0 0; letter-spacing: -.03em; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
-    .stat { padding: 16px; border-radius: 20px; background: rgba(0,0,0,.22); }
-    .stat strong { display: block; margin-top: 6px; font-size: 24px; }
-    .stat .level { font-size: 18px; line-height: 1.2; }
-    .goal-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
-    .goal-button { border-radius: 16px; padding: 12px 10px; background: rgba(255,255,255,.08); color: white; border: 1px solid rgba(255,255,255,.08); font-weight: 750; }
-    .goal-button.selected { background: white; color: var(--slate); }
-    .goal-track { margin-top: 16px; height: 12px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; }
-    .goal-fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow)); transition: width 300ms ease; }
-    .block-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 12px; }
-    .block { aspect-ratio: 1; display: grid; place-items: center; border-radius: 13px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: rgba(255,255,255,.34); font-size: 14px; }
-    .block.done { border-color: rgba(134,239,172,.5); background: var(--green); color: var(--slate); animation: pop 350ms ease; }
-    @keyframes pop { 0% { transform: scale(.82); } 60% { transform: scale(1.16); } 100% { transform: scale(1); } }
-    .rule-card { display: flex; gap: 16px; align-items: flex-start; }
-    .rule-card h3, .goal-card h3, .achievement-card h3, .garden-card h3 { margin: 0; font-size: 20px; }
-    .rule-card p, .goal-card p, .achievement-card p, .garden-card p { margin: 8px 0 0; color: rgba(255,255,255,.66); line-height: 1.6; }
-    .achievement-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 16px; }
-    .achievement { padding: 13px; border-radius: 18px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.08); opacity: .42; }
-    .achievement.unlocked { opacity: 1; background: rgba(255,255,255,.12); }
-    .achievement span { display: block; font-size: 24px; }
-    .achievement strong { display: block; margin-top: 5px; font-size: 14px; }
-    .achievement small { display: block; margin-top: 3px; color: rgba(255,255,255,.55); line-height: 1.35; }
-    .garden { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-top: 16px; }
-    .garden-item { aspect-ratio: 1; display: grid; place-items: center; border-radius: 16px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.08); font-size: 24px; }
-    .garden-empty { opacity: .28; }
-    .modal { position: fixed; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(15,23,42,.66); backdrop-filter: blur(8px); }
-    .modal.show { display: flex; }
-    .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-    .confetti { position: absolute; top: -30px; width: 8px; height: 13px; border-radius: 3px; background: linear-gradient(135deg, var(--cyan), var(--green), var(--yellow)); animation: fall 1200ms ease-out forwards; }
-    @keyframes fall { 0% { transform: translateY(-40px) rotate(0deg); opacity: 0; } 12% { opacity: 1; } 82% { opacity: 1; } 100% { transform: translateY(110vh) rotate(200deg); opacity: 0; } }
-    .reward-modal { position: relative; width: min(460px, 100%); padding: 28px; border-radius: 34px; background: white; color: var(--slate); text-align: center; box-shadow: 0 35px 90px rgba(0,0,0,.36); animation: modalIn 320ms cubic-bezier(.2,.9,.25,1.2); }
-    @keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(.86); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    .gift { width: 82px; height: 82px; margin: 0 auto; display: grid; place-items: center; border-radius: 999px; background: linear-gradient(135deg, var(--cyan), var(--green), var(--yellow)); font-size: 38px; animation: wiggle 680ms ease; }
-    @keyframes wiggle { 0%,100% { transform: rotate(0deg) scale(1); } 20% { transform: rotate(-8deg) scale(1.12); } 45% { transform: rotate(8deg) scale(1.08); } 70% { transform: rotate(-4deg) scale(1.03); } }
-    .reward-modal h2 { margin: 20px 0 0; font-size: 32px; letter-spacing: -.03em; }
-    .reward-modal p { margin: 12px 0 0; color: #475569; font-size: 18px; line-height: 1.4; }
-    .reward-summary { margin: 22px 0; padding: 16px; border-radius: 22px; background: #f1f5f9; }
-    .reward-summary span { display: block; color: #64748b; font-size: 14px; }
-    .reward-summary strong { display: block; margin-top: 4px; font-size: 28px; }
-    .reward-summary small { display: block; margin-top: 5px; color: #64748b; }
-    .bonus-line { margin-top: 8px !important; color: #0f766e !important; font-size: 15px !important; font-weight: 750; }
+
+    .glow {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(70px);
+    }
+
+    .glow-one {
+      width: 300px;
+      height: 300px;
+      left: -90px;
+      top: -90px;
+      background: #22d3ee;
+    }
+
+    .glow-two {
+      width: 420px;
+      height: 420px;
+      right: -100px;
+      bottom: -160px;
+      background: #8b5cf6;
+    }
+
+    .glow-three {
+      width: 220px;
+      height: 220px;
+      left: 40%;
+      top: 14%;
+      background: #34d399;
+    }
+
+    .app {
+      position: relative;
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel);
+      color: rgba(255,255,255,.82);
+      font-size: 14px;
+      backdrop-filter: blur(14px);
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 14px 0 0;
+      font-size: clamp(40px, 7vw, 64px);
+      line-height: .98;
+      letter-spacing: -.05em;
+    }
+
+    .intro {
+      max-width: 720px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    button {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .secondary-button,
+    .primary-button,
+    .reward-button,
+    .dark-button {
+      border-radius: 18px;
+      padding: 15px 20px;
+      font-weight: 750;
+      transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+    }
+
+    .secondary-button:hover,
+    .primary-button:hover,
+    .reward-button:hover,
+    .dark-button:hover,
+    .focus-option:hover,
+    .goal-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .secondary-button {
+      background: rgba(255,255,255,.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .primary-button {
+      background: var(--cyan);
+      color: var(--slate);
+    }
+
+    .reward-button {
+      background: var(--green);
+      color: var(--slate);
+    }
+
+    .dark-button {
+      width: 100%;
+      background: var(--slate);
+      color: white;
+    }
+
+    .focus-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .focus-option {
+      min-height: 148px;
+      padding: 22px;
+      text-align: left;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: white;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .focus-option.selected {
+      background: white;
+      color: var(--slate);
+      border-color: rgba(255,255,255,.8);
+    }
+
+    .focus-option-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      opacity: .78;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .focus-option h2 {
+      margin: 12px 0 0;
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    .focus-option p {
+      margin: 10px 0 0;
+      color: rgba(255,255,255,.62);
+      line-height: 1.45;
+      font-size: 15px;
+    }
+
+    .focus-option.selected p {
+      color: #475569;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 22px;
+    }
+
+    .card {
+      border-radius: 34px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 25px 80px rgba(0,0,0,.25);
+    }
+
+    .timer-card {
+      padding: 30px;
+    }
+
+    .timer-header,
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .current-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon-box {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: rgba(255,255,255,.1);
+      font-size: 24px;
+      flex: 0 0 auto;
+    }
+
+    .label {
+      margin: 0;
+      color: rgba(255,255,255,.58);
+      font-size: 14px;
+    }
+
+    .value {
+      margin: 3px 0 0;
+      font-weight: 750;
+    }
+
+    .percent {
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.76);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .timer-panel {
+      position: relative;
+      min-height: 315px;
+      margin-top: 24px;
+      padding: 44px 24px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 32px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .timer-panel.pulse {
+      animation: pulse 700ms ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      45% { transform: scale(1.025); }
+    }
+
+    .progress-track {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      top: 24px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.1);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow));
+      transition: width 300ms ease;
+    }
+
+    .time {
+      font-size: clamp(76px, 12vw, 126px);
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: -.06em;
+      margin-top: 18px;
+    }
+
+    .timer-help {
+      max-width: 500px;
+      margin: 18px 0 0;
+      color: rgba(255,255,255,.66);
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .side {
+      display: grid;
+      gap: 22px;
+    }
+
+    .progress-card,
+    .rule-card,
+    .goal-card,
+    .achievement-card,
+    .garden-card {
+      padding: 24px;
+    }
+
+    .progress-title {
+      font-size: 32px;
+      margin: 4px 0 0;
+      letter-spacing: -.03em;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(0,0,0,.22);
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 24px;
+    }
+
+    .stat .level {
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .goal-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .goal-button {
+      border-radius: 16px;
+      padding: 12px 10px;
+      background: rgba(255,255,255,.08);
+      color: white;
+      border: 1px solid rgba(255,255,255,.08);
+      font-weight: 750;
+    }
+
+    .goal-button.selected {
+      background: white;
+      color: var(--slate);
+    }
+
+    .goal-track {
+      margin-top: 16px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.1);
+      overflow: hidden;
+    }
+
+    .goal-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow));
+      transition: width 300ms ease;
+    }
+
+    .block-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .block {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.34);
+      font-size: 14px;
+    }
+
+    .block.done {
+      border-color: rgba(134,239,172,.5);
+      background: var(--green);
+      color: var(--slate);
+      animation: pop 350ms ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(.82); }
+      60% { transform: scale(1.16); }
+      100% { transform: scale(1); }
+    }
+
+    .rule-card {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .rule-card h3,
+    .goal-card h3,
+    .achievement-card h3,
+    .garden-card h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .rule-card p,
+    .goal-card p,
+    .achievement-card p,
+    .garden-card p {
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.66);
+      line-height: 1.6;
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .achievement {
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.2);
+      border: 1px solid rgba(255,255,255,.08);
+      opacity: .42;
+    }
+
+    .achievement.unlocked {
+      opacity: 1;
+      background: rgba(255,255,255,.12);
+    }
+
+    .achievement span {
+      display: block;
+      font-size: 24px;
+    }
+
+    .achievement strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .achievement small {
+      display: block;
+      margin-top: 3px;
+      color: rgba(255,255,255,.55);
+      line-height: 1.35;
+    }
+
+    .garden {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .garden-item {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size: 24px;
+    }
+
+    .garden-empty {
+      opacity: .28;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(15,23,42,.66);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -30px;
+      width: 8px;
+      height: 13px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, var(--cyan), var(--green), var(--yellow));
+      animation: fall 1200ms ease-out forwards;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+      12% { opacity: 1; }
+      82% { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(200deg); opacity: 0; }
+    }
+
+    .reward-modal {
+      position: relative;
+      width: min(460px, 100%);
+      padding: 28px;
+      border-radius: 34px;
+      background: white;
+      color: var(--slate);
+      text-align: center;
+      box-shadow: 0 35px 90px rgba(0,0,0,.36);
+      animation: modalIn 320ms cubic-bezier(.2,.9,.25,1.2);
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(30px) scale(.86); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .gift {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--cyan), var(--green), var(--yellow));
+      font-size: 38px;
+      animation: wiggle 680ms ease;
+    }
+
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg) scale(1); }
+      20% { transform: rotate(-8deg) scale(1.12); }
+      45% { transform: rotate(8deg) scale(1.08); }
+      70% { transform: rotate(-4deg) scale(1.03); }
+    }
+
+    .reward-modal h2 {
+      margin: 20px 0 0;
+      font-size: 32px;
+      letter-spacing: -.03em;
+    }
+
+    .reward-modal p {
+      margin: 12px 0 0;
+      color: #475569;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .reward-summary {
+      margin: 22px 0;
+      padding: 16px;
+      border-radius: 22px;
+      background: #f1f5f9;
+    }
+
+    .reward-summary span {
+      display: block;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .reward-summary strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 28px;
+    }
+
+    .reward-summary small {
+      display: block;
+      margin-top: 5px;
+      color: #64748b;
+    }
+
+    .bonus-line {
+      margin-top: 8px !important;
+      color: #0f766e !important;
+      font-size: 15px !important;
+      font-weight: 750;
+    }
+
     @media (max-width: 900px) {
-      header, .main-grid { grid-template-columns: 1fr; display: grid; }
-      header { align-items: start; }
-      .focus-options { grid-template-columns: 1fr; }
-      .timer-card { padding: 18px; }
-      .timer-header { align-items: flex-start; flex-direction: column; }
-      .actions { flex-direction: column; width: 100%; }
-      .actions button { width: 100%; }
-      .stat-grid, .achievement-grid { grid-template-columns: 1fr; }
-      .garden { grid-template-columns: repeat(6, 1fr); }
+      header,
+      .main-grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      header {
+        align-items: start;
+      }
+
+      .focus-options {
+        grid-template-columns: 1fr;
+      }
+
+      .timer-card {
+        padding: 18px;
+      }
+
+      .timer-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      .stat-grid,
+      .achievement-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .garden {
+        grid-template-columns: repeat(6, 1fr);
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="background"><div class="glow glow-one"></div><div class="glow glow-two"></div><div class="glow glow-three"></div></div>
+  <div class="background">
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
+    <div class="glow glow-three"></div>
+  </div>
 
   <div class="app">
     <header>
@@ -147,13 +723,25 @@
     <main class="main-grid">
       <section class="card timer-card">
         <div class="timer-header">
-          <div class="current-block"><div class="icon-box">⏱</div><div><p class="label">Current block</p><p class="value" id="currentBlockLabel">5 minutes of focused work</p></div></div>
+          <div class="current-block">
+            <div class="icon-box">⏱</div>
+            <div>
+              <p class="label">Current block</p>
+              <p class="value" id="currentBlockLabel">5 minutes of focused work</p>
+            </div>
+          </div>
           <div class="percent" id="percentComplete">0% complete</div>
         </div>
+
         <div class="timer-panel" id="timerPanel">
-          <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+
           <div class="time" id="timeDisplay">05:00</div>
-          <p class="timer-help">Start the timer and do one honest focus block. When it reaches zero, your win is logged automatically.</p>
+
+          <p class="timer-help">Start the timer and do one honest focus block. If you switch tabs, the timer still uses real clock time and catches up when you return.</p>
+
           <div class="actions">
             <button class="primary-button" id="startPauseButton">Start 5 min</button>
             <button class="reward-button" id="completeButton">✓ Check off now</button>
@@ -164,23 +752,49 @@
 
       <aside class="side">
         <section class="card progress-card">
-          <div class="progress-header"><div><p class="label">Today’s progress</p><h2 class="progress-title" id="blocksLabel">0 blocks</h2></div><div class="icon-box">🏆</div></div>
-          <div class="stat-grid">
-            <div class="stat"><p class="label">Minutes banked</p><strong id="minutesBanked">0</strong></div>
-            <div class="stat"><p class="label">Current streak</p><strong class="level" id="streakLabel">0 days</strong></div>
+          <div class="progress-header">
+            <div>
+              <p class="label">Today’s progress</p>
+              <h2 class="progress-title" id="blocksLabel">0 blocks</h2>
+            </div>
+            <div class="icon-box">🏆</div>
           </div>
+
           <div class="stat-grid">
-            <div class="stat"><p class="label">Current level</p><strong class="level" id="levelLabel">Ready to begin</strong></div>
-            <div class="stat"><p class="label">Total lifetime</p><strong id="lifetimeMinutes">0</strong></div>
+            <div class="stat">
+              <p class="label">Minutes banked</p>
+              <strong id="minutesBanked">0</strong>
+            </div>
+            <div class="stat">
+              <p class="label">Current streak</p>
+              <strong class="level" id="streakLabel">0 days</strong>
+            </div>
           </div>
-          <div style="margin-top: 24px;"><p class="label">Completed blocks</p><div class="block-grid" id="blockGrid"></div></div>
+
+          <div class="stat-grid">
+            <div class="stat">
+              <p class="label">Current level</p>
+              <strong class="level" id="levelLabel">Ready to begin</strong>
+            </div>
+            <div class="stat">
+              <p class="label">Total lifetime</p>
+              <strong id="lifetimeMinutes">0</strong>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px;">
+            <p class="label">Completed blocks</p>
+            <div class="block-grid" id="blockGrid"></div>
+          </div>
         </section>
 
         <section class="card goal-card">
           <h3>Today’s goal</h3>
           <p id="goalCopy">Choose a daily target and watch the bar fill up.</p>
           <div class="goal-buttons" id="goalButtons"></div>
-          <div class="goal-track"><div class="goal-fill" id="goalFill"></div></div>
+          <div class="goal-track">
+            <div class="goal-fill" id="goalFill"></div>
+          </div>
         </section>
 
         <section class="card garden-card">
@@ -195,7 +809,13 @@
           <div class="achievement-grid" id="achievementGrid"></div>
         </section>
 
-        <section class="card rule-card"><div class="icon-box">🔥</div><div><h3>The rule</h3><p>Effort first, reward second. Start tiny when you need to, then build up.</p></div></section>
+        <section class="card rule-card">
+          <div class="icon-box">🔥</div>
+          <div>
+            <h3>The rule</h3>
+            <p>Effort first, reward second. Start tiny when you need to, then build up.</p>
+          </div>
+        </section>
       </aside>
     </main>
   </div>
@@ -207,7 +827,11 @@
       <h2 id="rewardTitle">Reward unlocked</h2>
       <p id="rewardMessage">Nice work.</p>
       <p class="bonus-line" id="bonusLine"></p>
-      <div class="reward-summary"><span>Total earned today</span><strong id="rewardMinutes">0 minutes</strong><small id="rewardBlockLength">You just completed a focus block.</small></div>
+      <div class="reward-summary">
+        <span>Total earned today</span>
+        <strong id="rewardMinutes">0 minutes</strong>
+        <small id="rewardBlockLength">You just completed a focus block.</small>
+      </div>
       <button class="dark-button" id="closeRewardButton">Bank the win</button>
     </div>
   </div>
@@ -218,8 +842,11 @@
       { minutes: 5, label: "5 minutes", title: "Core block", description: "The default habit-building focus block." },
       { minutes: 10, label: "10 minutes", title: "Stamina builder", description: "For stretching the focus muscle once you’re warm." }
     ];
+
     const goalOptions = [15, 30, 60];
+
     const rewardItems = ["🌱", "🌿", "🌷", "🌻", "🌳", "🍄", "🪴", "🏆"];
+
     const achievements = [
       { id: "first", icon: "🎯", title: "First Focus Block", description: "Complete your first block.", test: s => s.lifetimeBlocks >= 1 },
       { id: "thirty", icon: "⏳", title: "30 Minutes", description: "Bank 30 total minutes.", test: s => s.lifetimeMinutes >= 30 },
@@ -228,15 +855,65 @@
       { id: "hundred", icon: "💯", title: "100 Blocks", description: "Complete 100 blocks.", test: s => s.lifetimeBlocks >= 100 },
       { id: "week", icon: "🔥", title: "7-Day Streak", description: "Focus for 7 days in a row.", test: s => s.currentStreak >= 7 }
     ];
-    const rewardMessages = ["Nice. You just proved you can start.", "That was clean focus. Tiny win, real progress.", "Good work. Your brain gets a reward because you earned it.", "Momentum unlocked.", "That counts. No dramatic nonsense, just progress.", "Another rep completed. This is how discipline is built.", "You did the thing. Enjoy that little hit of satisfaction.", "Focused time banked. Future you approves.", "Strong. One block closer.", "Work completed. Reward deserved."];
-    const rewardTitles = ["Reward unlocked", "Tiny victory", "Momentum gained", "Nice bit of progress", "Brain training complete", "You earned that"];
+
+    const rewardMessages = [
+      "Nice. You just proved you can start.",
+      "That was clean focus. Tiny win, real progress.",
+      "Good work. Your brain gets a reward because you earned it.",
+      "Momentum unlocked.",
+      "That counts. No dramatic nonsense, just progress.",
+      "Another rep completed. This is how discipline is built.",
+      "You did the thing. Enjoy that little hit of satisfaction.",
+      "Focused time banked. Future you approves.",
+      "Strong. One block closer.",
+      "Work completed. Reward deserved."
+    ];
+
+    const rewardTitles = [
+      "Reward unlocked",
+      "Tiny victory",
+      "Momentum gained",
+      "Nice bit of progress",
+      "Brain training complete",
+      "You earned that"
+    ];
 
     const $ = id => document.getElementById(id);
+
     const els = {
-      focusOptions: $("focusOptions"), currentBlockLabel: $("currentBlockLabel"), percentComplete: $("percentComplete"), progressBar: $("progressBar"), timeDisplay: $("timeDisplay"), startPauseButton: $("startPauseButton"), completeButton: $("completeButton"), resetTimerButton: $("resetTimerButton"), resetDayButton: $("resetDayButton"), blocksLabel: $("blocksLabel"), minutesBanked: $("minutesBanked"), streakLabel: $("streakLabel"), lifetimeMinutes: $("lifetimeMinutes"), levelLabel: $("levelLabel"), blockGrid: $("blockGrid"), timerPanel: $("timerPanel"), goalButtons: $("goalButtons"), goalFill: $("goalFill"), goalCopy: $("goalCopy"), garden: $("garden"), achievementGrid: $("achievementGrid"), rewardModal: $("rewardModal"), rewardIcon: $("rewardIcon"), rewardTitle: $("rewardTitle"), rewardMessage: $("rewardMessage"), bonusLine: $("bonusLine"), rewardMinutes: $("rewardMinutes"), rewardBlockLength: $("rewardBlockLength"), closeRewardButton: $("closeRewardButton"), confettiLayer: $("confettiLayer")
+      focusOptions: $("focusOptions"),
+      currentBlockLabel: $("currentBlockLabel"),
+      percentComplete: $("percentComplete"),
+      progressBar: $("progressBar"),
+      timeDisplay: $("timeDisplay"),
+      startPauseButton: $("startPauseButton"),
+      completeButton: $("completeButton"),
+      resetTimerButton: $("resetTimerButton"),
+      resetDayButton: $("resetDayButton"),
+      blocksLabel: $("blocksLabel"),
+      minutesBanked: $("minutesBanked"),
+      streakLabel: $("streakLabel"),
+      lifetimeMinutes: $("lifetimeMinutes"),
+      levelLabel: $("levelLabel"),
+      blockGrid: $("blockGrid"),
+      timerPanel: $("timerPanel"),
+      goalButtons: $("goalButtons"),
+      goalFill: $("goalFill"),
+      goalCopy: $("goalCopy"),
+      garden: $("garden"),
+      achievementGrid: $("achievementGrid"),
+      rewardModal: $("rewardModal"),
+      rewardIcon: $("rewardIcon"),
+      rewardTitle: $("rewardTitle"),
+      rewardMessage: $("rewardMessage"),
+      bonusLine: $("bonusLine"),
+      rewardMinutes: $("rewardMinutes"),
+      rewardBlockLength: $("rewardBlockLength"),
+      closeRewardButton: $("closeRewardButton"),
+      confettiLayer: $("confettiLayer")
     };
 
-    let state = JSON.parse(localStorage.getItem("focus-reward-state-v2") || "null") || {
+    let state = JSON.parse(localStorage.getItem("focus-reward-state-v3") || "null") || {
       completedBlocks: 0,
       completedMinutes: 0,
       lifetimeBlocks: 0,
@@ -249,26 +926,30 @@
       rewardCollection: [],
       unlockedAchievements: []
     };
-let secondsLeft = state.selectedMinutes * 60;
-let isRunning = false;
-let timer = null;
-let targetEndTime = null;
-let hasAutoCompleted = false;
-let rewardCloseTimer = null;
-let audioContext = null;
+
+    let secondsLeft = state.selectedMinutes * 60;
+    let isRunning = false;
+    let timer = null;
+    let targetEndTime = null;
+    let hasAutoCompleted = false;
+    let rewardCloseTimer = null;
+    let audioContext = null;
 
     function todayKey() {
       const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     }
+
     function daysBetween(a, b) {
       const start = new Date(a + "T00:00:00");
       const end = new Date(b + "T00:00:00");
       return Math.round((end - start) / 86400000);
     }
+
     function formatTime(totalSeconds) {
-      return `${String(Math.floor(totalSeconds/60)).padStart(2,"0")}:${String(totalSeconds % 60).padStart(2,"0")}`;
+      return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(totalSeconds % 60).padStart(2, "0")}`;
     }
+
     function getLevel() {
       if (state.lifetimeMinutes >= 300) return "Focus beast";
       if (state.completedMinutes >= 120) return "Deep work machine";
@@ -278,43 +959,71 @@ let audioContext = null;
       if (state.completedMinutes >= 1) return "Started strong";
       return "Ready to begin";
     }
-    function saveState() { localStorage.setItem("focus-reward-state-v2", JSON.stringify(state)); }
+
+    function saveState() {
+      localStorage.setItem("focus-reward-state-v3", JSON.stringify(state));
+    }
+
     function checkNewDay() {
       const today = todayKey();
+
       if (state.lastActiveDate && state.lastActiveDate !== today) {
         state.completedBlocks = 0;
         state.completedMinutes = 0;
       }
+
       saveState();
     }
 
     function renderFocusOptions() {
       els.focusOptions.innerHTML = "";
+
       focusOptions.forEach(option => {
         const selected = state.selectedMinutes === option.minutes;
         const button = document.createElement("button");
+
         button.className = `focus-option ${selected ? "selected" : ""}`;
-        button.innerHTML = `<div class="focus-option-top"><span>${option.label}</span><span>${selected ? "✓" : ""}</span></div><h2>${option.title}</h2><p>${option.description}</p>`;
+
+        button.innerHTML = `
+          <div class="focus-option-top">
+            <span>${option.label}</span>
+            <span>${selected ? "✓" : ""}</span>
+          </div>
+          <h2>${option.title}</h2>
+          <p>${option.description}</p>
+        `;
+
         button.addEventListener("click", () => changeFocusLength(option.minutes));
         els.focusOptions.appendChild(button);
       });
     }
+
     function renderGoals() {
       els.goalButtons.innerHTML = "";
+
       goalOptions.forEach(goal => {
         const button = document.createElement("button");
+
         button.className = `goal-button ${state.dailyGoal === goal ? "selected" : ""}`;
         button.textContent = `${goal} min`;
-        button.addEventListener("click", () => { state.dailyGoal = goal; updateDisplay(); });
+
+        button.addEventListener("click", () => {
+          state.dailyGoal = goal;
+          updateDisplay();
+        });
+
         els.goalButtons.appendChild(button);
       });
+
       const goalProgress = Math.min(100, (state.completedMinutes / state.dailyGoal) * 100);
       els.goalFill.style.width = `${goalProgress}%`;
       els.goalCopy.textContent = `${state.completedMinutes} of ${state.dailyGoal} minutes completed today.`;
     }
+
     function renderBlocks() {
       els.blockGrid.innerHTML = "";
       const totalShown = Math.max(12, state.completedBlocks);
+
       for (let i = 0; i < totalShown; i++) {
         const block = document.createElement("div");
         block.className = `block ${i < state.completedBlocks ? "done" : ""}`;
@@ -322,9 +1031,11 @@ let audioContext = null;
         els.blockGrid.appendChild(block);
       }
     }
+
     function renderGarden() {
       els.garden.innerHTML = "";
       const shown = state.rewardCollection.slice(-24);
+
       for (let i = 0; i < 24; i++) {
         const item = document.createElement("div");
         item.className = `garden-item ${shown[i] ? "" : "garden-empty"}`;
@@ -332,32 +1043,47 @@ let audioContext = null;
         els.garden.appendChild(item);
       }
     }
+
     function renderAchievements() {
       const justUnlocked = [];
+
       achievements.forEach(a => {
         if (a.test(state) && !state.unlockedAchievements.includes(a.id)) {
           state.unlockedAchievements.push(a.id);
           justUnlocked.push(a.title);
         }
       });
+
       els.achievementGrid.innerHTML = "";
+
       achievements.forEach(a => {
         const unlocked = state.unlockedAchievements.includes(a.id);
         const card = document.createElement("div");
+
         card.className = `achievement ${unlocked ? "unlocked" : ""}`;
-        card.innerHTML = `<span>${a.icon}</span><strong>${a.title}</strong><small>${unlocked ? "Unlocked" : a.description}</small>`;
+
+        card.innerHTML = `
+          <span>${a.icon}</span>
+          <strong>${a.title}</strong>
+          <small>${unlocked ? "Unlocked" : a.description}</small>
+        `;
+
         els.achievementGrid.appendChild(card);
       });
+
       return justUnlocked;
     }
+
     function updateDisplay() {
       checkNewDay();
+
       const currentBlockSeconds = state.selectedMinutes * 60;
       const progress = ((currentBlockSeconds - secondsLeft) / currentBlockSeconds) * 100;
       const minuteWord = state.selectedMinutes === 1 ? "minute" : "minutes";
+
       els.currentBlockLabel.textContent = `${state.selectedMinutes} ${minuteWord} of focused work`;
       els.percentComplete.textContent = `${Math.round(progress)}% complete`;
-      els.progressBar.style.width = `${progress}%`;
+      els.progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
       els.timeDisplay.textContent = formatTime(secondsLeft);
       els.startPauseButton.textContent = isRunning ? "Pause" : secondsLeft === currentBlockSeconds ? `Start ${state.selectedMinutes} min` : "Resume";
       els.blocksLabel.textContent = state.completedBlocks === 1 ? "1 block" : `${state.completedBlocks} blocks`;
@@ -365,140 +1091,249 @@ let audioContext = null;
       els.lifetimeMinutes.textContent = state.lifetimeMinutes;
       els.streakLabel.textContent = `${state.currentStreak} ${state.currentStreak === 1 ? "day" : "days"}`;
       els.levelLabel.textContent = getLevel();
-      renderFocusOptions(); renderGoals(); renderBlocks(); renderGarden(); renderAchievements(); saveState();
+
+      renderFocusOptions();
+      renderGoals();
+      renderBlocks();
+      renderGarden();
+      renderAchievements();
+      saveState();
     }
+
     function startTimer() {
-  if (timer) clearInterval(timer);
-
-  targetEndTime = Date.now() + secondsLeft * 1000;
-  hasAutoCompleted = false;
-
-  timer = setInterval(tickTimer, 250);
-}function tickTimer() {
-  if (!isRunning || !targetEndTime) return;
-
-  const remaining = Math.ceil((targetEndTime - Date.now()) / 1000);
-  secondsLeft = Math.max(0, remaining);
-
-  if (secondsLeft <= 0 && !hasAutoCompleted) {
-    hasAutoCompleted = true;
-    isRunning = false;
-
-    if (timer) clearInterval(timer);
-    timer = null;
-    targetEndTime = null;
-
-    updateDisplay();
-    completeBlock(true);
-    return;
-  }
-
-  updateDisplay();
-} {
       if (timer) clearInterval(timer);
-      timer = setInterval(() => {
-        if (secondsLeft <= 1) {
-          secondsLeft = 0; isRunning = false; clearInterval(timer); timer = null; updateDisplay(); completeBlock(true); return;
-        }
-        secondsLeft -= 1; updateDisplay();
-      }, 1000);
-    }
-    function toggleTimer() {
-  if (isRunning) {
-    isRunning = false;
 
-    if (targetEndTime) {
-      secondsLeft = Math.max(
-        0,
-        Math.ceil((targetEndTime - Date.now()) / 1000)
-      );
+      targetEndTime = Date.now() + secondsLeft * 1000;
+      hasAutoCompleted = false;
+
+      timer = setInterval(tickTimer, 250);
     }
 
-    targetEndTime = null;
+    function tickTimer() {
+      if (!isRunning || !targetEndTime) return;
 
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-  } else {
-    isRunning = true;
-    startTimer();
-  }
+      const remaining = Math.ceil((targetEndTime - Date.now()) / 1000);
+      secondsLeft = Math.max(0, remaining);
 
-  document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) tickTimer();
-});
+      if (secondsLeft <= 0 && !hasAutoCompleted) {
+        hasAutoCompleted = true;
+        isRunning = false;
 
-window.addEventListener("focus", tickTimer);updateDisplay();
-} {
-      isRunning = !isRunning;
-      if (isRunning) startTimer(); else if (timer) { clearInterval(timer); timer = null; }
+        if (timer) clearInterval(timer);
+
+        timer = null;
+        targetEndTime = null;
+
+        updateDisplay();
+        completeBlock(true);
+        return;
+      }
+
       updateDisplay();
     }
-    function changeFocusLength(minutes) {
-      state.selectedMinutes = minutes; secondsLeft = minutes * 60; isRunning = false; if (timer) clearInterval(timer); timer = null; hideReward(); updateDisplay();
+
+    function toggleTimer() {
+      if (isRunning) {
+        isRunning = false;
+
+        if (targetEndTime) {
+          secondsLeft = Math.max(0, Math.ceil((targetEndTime - Date.now()) / 1000));
+        }
+
+        targetEndTime = null;
+
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      } else {
+        isRunning = true;
+        startTimer();
+      }
+
+      updateDisplay();
     }
+
+    function changeFocusLength(minutes) {
+      state.selectedMinutes = minutes;
+      secondsLeft = minutes * 60;
+      isRunning = false;
+      targetEndTime = null;
+      hasAutoCompleted = false;
+
+      if (timer) clearInterval(timer);
+      timer = null;
+
+      hideReward();
+      updateDisplay();
+    }
+
     function updateStreak() {
       const today = todayKey();
+
       if (state.lastActiveDate === today) return;
-      if (!state.lastActiveDate) state.currentStreak = 1;
-      else state.currentStreak = daysBetween(state.lastActiveDate, today) === 1 ? state.currentStreak + 1 : 1;
+
+      if (!state.lastActiveDate) {
+        state.currentStreak = 1;
+      } else {
+        state.currentStreak = daysBetween(state.lastActiveDate, today) === 1 ? state.currentStreak + 1 : 1;
+      }
+
       state.lastActiveDate = today;
       state.bestStreak = Math.max(state.bestStreak, state.currentStreak);
     }
+
     function playRewardSound() {
-      const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
       audioContext = audioContext || new AudioContext();
-      [523.25,659.25,783.99].forEach((frequency, index) => {
-        const oscillator = audioContext.createOscillator(); const gain = audioContext.createGain();
-        oscillator.frequency.value = frequency; oscillator.type = "sine"; oscillator.connect(gain); gain.connect(audioContext.destination);
+
+      [523.25, 659.25, 783.99].forEach((frequency, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = "sine";
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
         gain.gain.setValueAtTime(0, audioContext.currentTime + index * .08);
         gain.gain.linearRampToValueAtTime(.08, audioContext.currentTime + index * .08 + .02);
         gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + index * .08 + .22);
-        oscillator.start(audioContext.currentTime + index * .08); oscillator.stop(audioContext.currentTime + index * .08 + .24);
+
+        oscillator.start(audioContext.currentTime + index * .08);
+        oscillator.stop(audioContext.currentTime + index * .08 + .24);
       });
     }
-    function vibrate() { if (navigator.vibrate) navigator.vibrate([60,40,90]); }
+
+    function vibrate() {
+      if (navigator.vibrate) navigator.vibrate([60, 40, 90]);
+    }
+
     function createConfetti() {
       els.confettiLayer.innerHTML = "";
+
       for (let i = 0; i < 44; i++) {
-        const piece = document.createElement("span"); piece.className = "confetti";
-        piece.style.left = `${Math.random()*100}%`; piece.style.animationDelay = `${Math.random()*180}ms`; piece.style.animationDuration = `${900 + Math.random()*650}ms`; piece.style.width = `${6 + Math.random()*8}px`; piece.style.height = `${9 + Math.random()*12}px`;
+        const piece = document.createElement("span");
+
+        piece.className = "confetti";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.animationDelay = `${Math.random() * 180}ms`;
+        piece.style.animationDuration = `${900 + Math.random() * 650}ms`;
+        piece.style.width = `${6 + Math.random() * 8}px`;
+        piece.style.height = `${9 + Math.random() * 12}px`;
+
         els.confettiLayer.appendChild(piece);
       }
     }
+
     function showReward(blockLength, autoCompleted, newItem, justUnlocked) {
       els.rewardIcon.textContent = newItem;
-      els.rewardTitle.textContent = rewardTitles[Math.floor(Math.random()*rewardTitles.length)];
-      els.rewardMessage.textContent = autoCompleted ? "Timer finished. Work completed. Reward deserved." : rewardMessages[Math.floor(Math.random()*rewardMessages.length)];
-      els.bonusLine.textContent = justUnlocked.length ? `Achievement unlocked: ${justUnlocked[0]}` : `You collected ${newItem}`;
+      els.rewardTitle.textContent = rewardTitles[Math.floor(Math.random() * rewardTitles.length)];
+      els.rewardMessage.textContent = autoCompleted
+        ? "Timer finished. Work completed. Reward deserved."
+        : rewardMessages[Math.floor(Math.random() * rewardMessages.length)];
+
+      els.bonusLine.textContent = justUnlocked.length
+        ? `Achievement unlocked: ${justUnlocked[0]}`
+        : `You collected ${newItem}`;
+
       els.rewardMinutes.textContent = `${state.completedMinutes} ${state.completedMinutes === 1 ? "minute" : "minutes"}`;
       els.rewardBlockLength.textContent = `You just completed a ${blockLength}-minute block.`;
-      els.rewardModal.classList.add("show"); createConfetti();
-      if (rewardCloseTimer) clearTimeout(rewardCloseTimer); rewardCloseTimer = setTimeout(hideReward, 4200);
+
+      els.rewardModal.classList.add("show");
+      createConfetti();
+
+      if (rewardCloseTimer) clearTimeout(rewardCloseTimer);
+      rewardCloseTimer = setTimeout(hideReward, 4200);
     }
-    function hideReward() { els.rewardModal.classList.remove("show"); els.confettiLayer.innerHTML = ""; if (rewardCloseTimer) clearTimeout(rewardCloseTimer); }
+
+    function hideReward() {
+      els.rewardModal.classList.remove("show");
+      els.confettiLayer.innerHTML = "";
+
+      if (rewardCloseTimer) clearTimeout(rewardCloseTimer);
+    }
+
     function completeBlock(autoCompleted = false) {
       const blockLength = state.selectedMinutes;
-      state.completedBlocks += 1; state.completedMinutes += blockLength; state.lifetimeBlocks += 1; state.lifetimeMinutes += blockLength;
+
+      state.completedBlocks += 1;
+      state.completedMinutes += blockLength;
+      state.lifetimeBlocks += 1;
+      state.lifetimeMinutes += blockLength;
+
       updateStreak();
+
       const newItem = rewardItems[Math.min(rewardItems.length - 1, Math.floor(state.lifetimeBlocks / 4))] || "🌱";
       state.rewardCollection.push(newItem);
-      secondsLeft = state.selectedMinutes * 60; isRunning = false; if (timer) clearInterval(timer); timer = null;
-      els.timerPanel.classList.remove("pulse"); void els.timerPanel.offsetWidth; els.timerPanel.classList.add("pulse");
-      playRewardSound(); vibrate();
+
+      secondsLeft = state.selectedMinutes * 60;
+      isRunning = false;
+      targetEndTime = null;
+      hasAutoCompleted = false;
+
+      if (timer) clearInterval(timer);
+      timer = null;
+
+      els.timerPanel.classList.remove("pulse");
+      void els.timerPanel.offsetWidth;
+      els.timerPanel.classList.add("pulse");
+
+      playRewardSound();
+      vibrate();
+
       const justUnlocked = renderAchievements();
-      updateDisplay(); showReward(blockLength, autoCompleted, newItem, justUnlocked);
+
+      updateDisplay();
+      showReward(blockLength, autoCompleted, newItem, justUnlocked);
     }
-    function resetTimer() { secondsLeft = state.selectedMinutes * 60; isRunning = false; if (timer) clearInterval(timer); timer = null; updateDisplay(); }
-    function resetDay() { state.completedBlocks = 0; state.completedMinutes = 0; secondsLeft = state.selectedMinutes * 60; isRunning = false; if (timer) clearInterval(timer); timer = null; hideReward(); updateDisplay(); }
+
+    function resetTimer() {
+      secondsLeft = state.selectedMinutes * 60;
+      isRunning = false;
+      targetEndTime = null;
+      hasAutoCompleted = false;
+
+      if (timer) clearInterval(timer);
+      timer = null;
+
+      updateDisplay();
+    }
+
+    function resetDay() {
+      state.completedBlocks = 0;
+      state.completedMinutes = 0;
+      secondsLeft = state.selectedMinutes * 60;
+      isRunning = false;
+      targetEndTime = null;
+      hasAutoCompleted = false;
+
+      if (timer) clearInterval(timer);
+      timer = null;
+
+      hideReward();
+      updateDisplay();
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) tickTimer();
+    });
+
+    window.addEventListener("focus", tickTimer);
 
     els.startPauseButton.addEventListener("click", toggleTimer);
     els.completeButton.addEventListener("click", () => completeBlock(false));
     els.resetTimerButton.addEventListener("click", resetTimer);
     els.resetDayButton.addEventListener("click", resetDay);
     els.closeRewardButton.addEventListener("click", hideReward);
-    els.rewardModal.addEventListener("click", e => { if (e.target === els.rewardModal) hideReward(); });
+
+    els.rewardModal.addEventListener("click", event => {
+      if (event.target === els.rewardModal) hideReward();
+    });
+
     updateDisplay();
   </script>
 </body>
