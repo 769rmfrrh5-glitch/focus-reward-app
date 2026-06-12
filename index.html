@@ -249,11 +249,13 @@
       rewardCollection: [],
       unlockedAchievements: []
     };
-    let secondsLeft = state.selectedMinutes * 60;
-    let isRunning = false;
-    let timer = null;
-    let rewardCloseTimer = null;
-    let audioContext = null;
+let secondsLeft = state.selectedMinutes * 60;
+let isRunning = false;
+let timer = null;
+let targetEndTime = null;
+let hasAutoCompleted = false;
+let rewardCloseTimer = null;
+let audioContext = null;
 
     function todayKey() {
       const d = new Date();
@@ -366,6 +368,33 @@
       renderFocusOptions(); renderGoals(); renderBlocks(); renderGarden(); renderAchievements(); saveState();
     }
     function startTimer() {
+  if (timer) clearInterval(timer);
+
+  targetEndTime = Date.now() + secondsLeft * 1000;
+  hasAutoCompleted = false;
+
+  timer = setInterval(tickTimer, 250);
+}function tickTimer() {
+  if (!isRunning || !targetEndTime) return;
+
+  const remaining = Math.ceil((targetEndTime - Date.now()) / 1000);
+  secondsLeft = Math.max(0, remaining);
+
+  if (secondsLeft <= 0 && !hasAutoCompleted) {
+    hasAutoCompleted = true;
+    isRunning = false;
+
+    if (timer) clearInterval(timer);
+    timer = null;
+    targetEndTime = null;
+
+    updateDisplay();
+    completeBlock(true);
+    return;
+  }
+
+  updateDisplay();
+} {
       if (timer) clearInterval(timer);
       timer = setInterval(() => {
         if (secondsLeft <= 1) {
@@ -375,6 +404,33 @@
       }, 1000);
     }
     function toggleTimer() {
+  if (isRunning) {
+    isRunning = false;
+
+    if (targetEndTime) {
+      secondsLeft = Math.max(
+        0,
+        Math.ceil((targetEndTime - Date.now()) / 1000)
+      );
+    }
+
+    targetEndTime = null;
+
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  } else {
+    isRunning = true;
+    startTimer();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) tickTimer();
+});
+
+window.addEventListener("focus", tickTimer);updateDisplay();
+} {
       isRunning = !isRunning;
       if (isRunning) startTimer(); else if (timer) { clearInterval(timer); timer = null; }
       updateDisplay();
